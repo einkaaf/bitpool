@@ -138,7 +138,7 @@ class Coin extends StatelessWidget {
               decoration: BoxDecoration(
                   color: (currency.priceChangePercentage24h! > 0)
                       ? Colors.green
-                      : Colors.red,
+                      : Colors.pinkAccent,
                   borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(24),
                       topRight: Radius.circular(24))),
