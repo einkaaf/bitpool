@@ -12,13 +12,20 @@ class HomeScreen extends StatelessWidget {
     return FutureBuilder(
       future: CoinRepository().fetchCryptocurrencyPrices(),
       builder: (context, snapshot) {
+        debugPrint('------' + snapshot.hasError.toString());
+        debugPrint('------' + snapshot.hasData.toString());
+
+        if (snapshot.hasError) {
+          return Scaffold();
+        }
+
         if (snapshot.hasData) {
           return Scaffold(
             backgroundColor: Colors.black87,
             body: SafeArea(
               child: GridView.count(
                 crossAxisCount: 2,
-                mainAxisSpacing: 10,
+                mainAxisSpacing: 20,
                 physics: BouncingScrollPhysics(),
                 children: List.generate(
                   snapshot.data!.length,
@@ -29,8 +36,17 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
           );
-        } else {
+        } else if (snapshot.hasError &&
+            snapshot.data != null &&
+            snapshot.data!.isEmpty) {
           return Scaffold(
+            body: Center(
+              child: ElevatedButton(
+                  onPressed: () {}, child: const Text('Retry !')),
+            ),
+          );
+        } else {
+          return const Scaffold(
             body: Center(
               child: CircularProgressIndicator(),
             ),
@@ -116,21 +132,21 @@ class Coin extends StatelessWidget {
           borderRadius: BorderRadius.circular(24),
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Container(
-              padding: EdgeInsets.all(8),
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                  color: Colors.red,
-                  borderRadius: BorderRadius.only(
+                  color: (currency.priceChangePercentage24h! > 0)
+                      ? Colors.green
+                      : Colors.red,
+                  borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(24),
                       topRight: Radius.circular(24))),
               width: double.maxFinite,
               child: Center(
                   child: Text(
-                '${currency.usd_24h_change.toStringAsFixed(3)}%',
-                style: TextStyle(
+                '${currency.priceChangePercentage24h!.toStringAsFixed(3)}%',
+                style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                     fontSize: 16),
@@ -139,32 +155,35 @@ class Coin extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.fromLTRB(18, 8, 18, 8),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         currency.name.toString(),
-                        style: TextStyle(
+                        style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
-                            fontSize: 20),
+                            fontSize: 16),
                       ),
                       Text(
-                        '\$ ${currency.price.toStringAsFixed(4)}',
-                        style: TextStyle(color: Colors.white),
+                        '\$ ${currency.currentPrice!.toStringAsFixed(4)}',
+                        style: const TextStyle(color: Colors.white),
                       ),
                       Text(
-                        'IR ${currency.price.toStringAsFixed(4)}',
-                        style: TextStyle(color: Colors.white),
+                        'IR ${currency.currentPrice!.toStringAsFixed(4)}',
+                        style: const TextStyle(color: Colors.white),
                       ),
                     ],
                   ),
-                  Image.network(
-                    'https://cryptologos.cc/logos/bitcoin-btc-logo.png',
-                    height: 35,
+                  Container(
+                    child: Image.network(
+                      currency.image.toString(),
+                      height: 35,
+                      width: 30,
+                    ),
                   )
                 ],
               ),
